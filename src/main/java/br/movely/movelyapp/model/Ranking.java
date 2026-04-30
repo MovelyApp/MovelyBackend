@@ -1,6 +1,5 @@
-package br.movely.movelyapp.ranking;
+package br.movely.movelyapp.model;
 
-import br.movely.movelyapp.rankingentry.RankingEntry;
 import lombok.Getter;
 import lombok.Setter;
 

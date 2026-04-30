@@ -1,6 +1,7 @@
-package br.movely.movelyapp.ranking;
+package br.movely.movelyapp.service;
 
-import br.movely.movelyapp.rankingentry.RankingEntry;
+import br.movely.movelyapp.model.Ranking;
+import br.movely.movelyapp.model.RankingEntry;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
