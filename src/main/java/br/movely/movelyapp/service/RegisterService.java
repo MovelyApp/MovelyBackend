@@ -1,8 +1,10 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.*;
+import br.movely.movelyapp.exceptions.NotFoundException;
 import br.movely.movelyapp.model.*;
 import br.movely.movelyapp.repository.RegisterRepository;
+import br.movely.movelyapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,7 @@ public class RegisterService {
     private RegisterRepository registerRepository;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     public List<Register> getAllByUser(Long userId) {
         return registerRepository.findByUserId(userId);
@@ -24,7 +26,7 @@ public class RegisterService {
 
     public WaterRegister createWaterRegister(WaterRegisterRequest request) {
         WaterRegister register = new WaterRegister();
-        register.setUser(userService.getUser(request.getUserId()));
+        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
         register.setDateTime(LocalDateTime.now());
         register.setNotes(request.getNotes());
         register.setMl(request.getMl());
@@ -33,7 +35,7 @@ public class RegisterService {
 
     public StepsRegister createStepsRegister(StepsRegisterRequest request) {
         StepsRegister register = new StepsRegister();
-        register.setUser(userService.getUser(request.getUserId()));
+        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
         register.setDateTime(LocalDateTime.now());
         register.setNotes(request.getNotes());
         register.setSteps(request.getSteps());
@@ -42,7 +44,7 @@ public class RegisterService {
 
     public SleepRegister createSleepRegister(SleepRegisterRequest request) {
         SleepRegister register = new SleepRegister();
-        register.setUser(userService.getUser(request.getUserId()));
+        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
         register.setDateTime(LocalDateTime.now());
         register.setNotes(request.getNotes());
         register.setHours(request.getHours());
@@ -52,7 +54,7 @@ public class RegisterService {
 
     public WorkoutRegister createWorkoutRegister(WorkoutRegisterRequest request) {
         WorkoutRegister register = new WorkoutRegister();
-        register.setUser(userService.getUser(request.getUserId()));
+        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
         register.setDateTime(LocalDateTime.now());
         register.setNotes(request.getNotes());
         register.setWorkoutType(request.getWorkoutType());
@@ -63,7 +65,7 @@ public class RegisterService {
 
     public StudyRegister createStudyRegister(StudyRegisterRequest request) {
         StudyRegister register = new StudyRegister();
-        register.setUser(userService.getUser(request.getUserId()));
+        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
         register.setDateTime(LocalDateTime.now());
         register.setNotes(request.getNotes());
         register.setHours(request.getHours());
