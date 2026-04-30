@@ -11,7 +11,9 @@ import java.util.Map;
 
 @Entity
 @DiscriminatorValue("WORKOUT")
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class WorkoutGoal extends Goal {
 
     @Column(name = "workouts_target")
@@ -23,7 +25,11 @@ public class WorkoutGoal extends Goal {
     @Override
     public double calculateProgress(Map<String, Double> values) {
         double done = values.getOrDefault("workouts", 0.0);
-        if (workoutsTarget <= 0) return 0.0;
+
+        if (workoutsTarget <= 0) {
+            return 0.0;
+        }
+
         return Math.min(done / workoutsTarget, 1.0);
     }
 

@@ -8,6 +8,20 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+import br.movely.movelyapp.DTO.CreateSleepGoalDTO;
+import br.movely.movelyapp.DTO.CreateStepsGoalDTO;
+import br.movely.movelyapp.DTO.CreateStudyGoalDTO;
+import br.movely.movelyapp.DTO.CreateWaterGoalDTO;
+import br.movely.movelyapp.DTO.CreateWorkoutGoalDTO;
+
+import br.movely.movelyapp.model.SleepGoal;
+import br.movely.movelyapp.model.StepsGoal;
+import br.movely.movelyapp.model.StudyGoal;
+import br.movely.movelyapp.model.WaterGoal;
+import br.movely.movelyapp.model.WorkoutGoal;
+
+import org.springframework.http.HttpStatus;
+
 @RestController
 @RequestMapping("/api/goals")
 public class GoalController {
@@ -44,4 +58,73 @@ public class GoalController {
         goalService.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    // endpoints das subclasses
+
+    @PostMapping("/sleep")
+    public ResponseEntity<GoalResponseDTO> createSleep(@RequestBody CreateSleepGoalDTO dto) {
+        SleepGoal goal = goalService.createSleepGoal(
+                dto.getChallengeId(),
+                dto.getName(),
+                dto.getDescription(),
+                dto.getHoursTarget()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(GoalResponseDTO.fromEntity(goal));
+    }
+
+    @PostMapping("/steps")
+    public ResponseEntity<GoalResponseDTO> createSteps(@RequestBody CreateStepsGoalDTO dto) {
+        StepsGoal goal = goalService.createStepsGoal(
+                dto.getChallengeId(),
+                dto.getName(),
+                dto.getDescription(),
+                dto.getStepsTarget()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(GoalResponseDTO.fromEntity(goal));
+    }
+
+    @PostMapping("/study")
+    public ResponseEntity<GoalResponseDTO> createStudy(@RequestBody CreateStudyGoalDTO dto) {
+        StudyGoal goal = goalService.createStudyGoal(
+                dto.getChallengeId(),
+                dto.getName(),
+                dto.getDescription(),
+                dto.getHoursTarget()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(GoalResponseDTO.fromEntity(goal));
+    }
+
+    @PostMapping("/water")
+    public ResponseEntity<GoalResponseDTO> createWater(@RequestBody CreateWaterGoalDTO dto) {
+        WaterGoal goal = goalService.createWaterGoal(
+                dto.getChallengeId(),
+                dto.getName(),
+                dto.getDescription(),
+                dto.getMlTarget()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(GoalResponseDTO.fromEntity(goal));
+    }
+
+    @PostMapping("/workout")
+    public ResponseEntity<GoalResponseDTO> createWorkout(@RequestBody CreateWorkoutGoalDTO dto) {
+        WorkoutGoal goal = goalService.createWorkoutGoal(
+                dto.getChallengeId(),
+                dto.getName(),
+                dto.getDescription(),
+                dto.getWorkoutsTarget(),
+                dto.getWorkoutType()
+        );
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(GoalResponseDTO.fromEntity(goal));
+    }
+
 }
