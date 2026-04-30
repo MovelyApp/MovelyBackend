@@ -1,5 +1,7 @@
-package br.movely.movelyapp.ranking;
+package br.movely.movelyapp.controller;
 
+import br.movely.movelyapp.model.Ranking;
+import br.movely.movelyapp.service.RankingService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

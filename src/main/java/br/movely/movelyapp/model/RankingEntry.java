@@ -1,4 +1,4 @@
-package br.movely.movelyapp.rankingentry;
+package br.movely.movelyapp.model;
 
 import lombok.Getter;
 import lombok.Setter;
