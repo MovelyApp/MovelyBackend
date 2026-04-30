@@ -12,7 +12,9 @@ import java.util.Map;
 
 @Entity
 @DiscriminatorValue("SLEEP")
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class SleepGoal extends Goal {
 
     @Column(name = "hours_target")
@@ -20,17 +22,23 @@ public class SleepGoal extends Goal {
 
     @Override
     public double calculateProgress(Map<String, Double> values) {
-        double slept = values.getOrDefault("hours", 0.0);
-        if (hoursTarget <= 0) return 0.0;
-        return Math.min(slept / hoursTarget, 1.0);
+        double slept = values.getOrDefault("hours", 0.0); // metodo do java que busca um valor e se nao tiver retorna o segundo argumento
+
+        if (hoursTarget <= 0) {
+            return 0.0;
+        } // p evitar divisao por 0
+
+        return Math.min(slept / hoursTarget, 1.0); // calcula a proporcao da meta cumprida
     }
 
     @Override
     public double calculatePoints(Map<String, Double> values) {
         double slept = values.getOrDefault("hours", 0.0);
-        double qualityCode = values.getOrDefault("quality", 2.0);
+        double qualityCode = values.getOrDefault("quality", 2.0); // pega a qualidade do sono, se n vier assume OK
 
-        if (hoursTarget <= 0) return 0.0;
+        if (hoursTarget <= 0) {
+            return 0.0;
+        }
 
         double hoursPoints = (slept / hoursTarget) * 100.0;
 

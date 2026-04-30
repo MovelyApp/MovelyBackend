@@ -11,7 +11,9 @@ import java.util.Map;
 
 @Entity
 @DiscriminatorValue("WATER")
-@Getter @Setter @NoArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
 public class WaterGoal extends Goal {
 
     @Column(name = "ml_target")
@@ -20,14 +22,22 @@ public class WaterGoal extends Goal {
     @Override
     public double calculateProgress(Map<String, Double> values) {
         double consumed = values.getOrDefault("ml", 0.0);
-        if (mlTarget <= 0) return 0.0;
+
+        if (mlTarget <= 0) {
+            return 0.0;
+        }
+
         return Math.min(consumed / mlTarget, 1.0);
     }
 
     @Override
     public double calculatePoints(Map<String, Double> values) {
         double consumed = values.getOrDefault("ml", 0.0);
-        if (mlTarget <= 0) return 0.0;
+
+        if (mlTarget <= 0) {
+            return 0.0;
+        }
+
         return (consumed / mlTarget) * 100.0;
     }
 }
