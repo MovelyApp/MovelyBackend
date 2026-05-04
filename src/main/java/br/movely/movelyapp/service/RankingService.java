@@ -8,15 +8,16 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class RankingService {
 
     public Ranking generateRanking(
-            Integer groupId,
-            Integer challengeId,
-            List<Integer> users,
-            Map<Integer, Double> scoreByUser) {
+            UUID groupId,
+            UUID challengeId,
+            List<Long> users,
+            Map<Long, Double> scoreByUser) {
 
         Ranking ranking = new Ranking();
         ranking.setGroupId(groupId);
@@ -25,7 +26,7 @@ public class RankingService {
 
         List<RankingEntry> entries = new ArrayList<>();
 
-        for (Integer userId : users) {
+        for (Long userId : users) {
 
             double score = scoreByUser.getOrDefault(userId, 0.0);
 

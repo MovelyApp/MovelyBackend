@@ -7,10 +7,10 @@ import lombok.Setter;
 @Setter
 public class RankingEntry {
 
-    private Integer id;
-    private Integer rankingId;
+    private Long id;
+    private Long rankingId;
 
-    private Integer userId;
+    private Long userId;
 
     private Double score;
     private Integer position;

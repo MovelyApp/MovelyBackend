@@ -6,14 +6,15 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class Ranking {
 
-    private Integer id;
-    private Integer groupId;
-    private Integer challengeId;
+    private Long id;
+    private UUID groupId;
+    private UUID challengeId;
 
     private LocalDateTime updatedAt;
 
