@@ -64,4 +64,16 @@ public class Group {
     public void setDataLancamento(LocalDateTime dataLancamento) {
         this.dataLancamento = dataLancamento;
     }
+
+    public void atualizarInfo(String name, String description, String urlImagem) {
+        if (name != null) {
+            this.name = name;
+        }
+        if (description != null) {
+            this.description = description;
+        }
+        if (urlImagem != null) {
+            this.urlImagem = urlImagem;
+        }
+    }
 }
