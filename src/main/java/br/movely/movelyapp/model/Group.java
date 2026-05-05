@@ -107,6 +107,14 @@ public class Group {
     }
 
     public void addUser(User user) {
+        if (user == null) {
+            return;
+        }
+        boolean alreadyInGroup = this.users.stream()
+                .anyMatch(member -> user.getId() != null && user.getId().equals(member.getId()));
+        if (alreadyInGroup) {
+            return;
+        }
         this.users.add(user);
     }
 

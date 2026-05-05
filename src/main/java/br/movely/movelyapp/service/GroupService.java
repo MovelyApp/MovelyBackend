@@ -37,7 +37,7 @@ public class GroupService {
     @Transactional(readOnly = true)
     public Page<ResponseGroupDTO> listGroups(Pageable pageable, String username) {
         User currentUser = findUserByUsername(username);
-        return groupRepository.findByUsers_Id(currentUser.getId(), pageable).map(ResponseGroupDTO::toDTO);
+        return groupRepository.findVisibleToUser(currentUser.getId(), pageable).map(ResponseGroupDTO::toDTO);
     }
 
     public Group findGroup(UUID id) {
@@ -54,11 +54,7 @@ public class GroupService {
     @Transactional(readOnly = true)
     public List<UUID> listUserGroupIds(String username) {
         User currentUser = findUserByUsername(username);
-        return groupRepository.findByUsers_Id(currentUser.getId(), Pageable.unpaged())
-                .getContent()
-                .stream()
-                .map(Group::getId)
-                .collect(Collectors.toList());
+        return groupRepository.findVisibleGroupIdsToUser(currentUser.getId());
     }
 
     public ResponseGroupDTO save(CreateGroupDTO request, String username) {

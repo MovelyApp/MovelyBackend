@@ -4,6 +4,7 @@ import br.movely.movelyapp.model.Group;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -34,7 +35,15 @@ public class ResponseGroupDTO {
                     ? group.getOwner().getEmail()
                     : group.getOwner().getUsername());
         }
-        dto.setUsers(group.getUsers().stream().map(UserDTO::get).collect(Collectors.toList()));
+        List<UserDTO> members = new ArrayList<>(group.getUsers().stream().map(UserDTO::get).collect(Collectors.toList()));
+        if (group.getOwner() != null) {
+            boolean ownerAlreadyListed = members.stream()
+                    .anyMatch(user -> group.getOwner().getId().equals(user.getId()));
+            if (!ownerAlreadyListed) {
+                members.add(0, UserDTO.get(group.getOwner()));
+            }
+        }
+        dto.setUsers(members);
         return dto;
     }
 }

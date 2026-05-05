@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,6 +50,14 @@ public class UserService {
 
     public List<UserDTO> getUsers() {
         return userRepository.findAll().stream().map(UserDTO::get).collect(Collectors.toList());
+    }
+
+    public List<UserDTO> getUsers(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return getUsers();
+        }
+
+        return Collections.singletonList(getUserByEmail(email));
     }
 
     public UserDTO updateUser(UpdateUserRequest request, String username) {

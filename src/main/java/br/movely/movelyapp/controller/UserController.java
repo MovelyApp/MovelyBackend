@@ -18,8 +18,8 @@ public class UserController {
     UserService service;
 
     @GetMapping
-    public List<UserDTO> getUsers() {
-        return service.getUsers();
+    public List<UserDTO> getUsers(@RequestParam(required = false) String email) {
+        return service.getUsers(email);
     }
 
     @GetMapping("/by-email")
