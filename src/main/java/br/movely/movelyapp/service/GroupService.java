@@ -15,8 +15,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -40,6 +42,22 @@ public class GroupService {
     public Group findGroup(UUID id) {
         return groupRepository.findById(id)
                 .orElseThrow(GroupNotFoundException::new);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isUserInGroup(Long userId, UUID groupId) {
+        Group group = findGroup(groupId);
+        return group.getUsers().stream().anyMatch(member -> userId.equals(member.getId()));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UUID> listUserGroupIds(String username) {
+        User currentUser = findUserByUsername(username);
+        return groupRepository.findByUsers_Id(currentUser.getId(), Pageable.unpaged())
+                .getContent()
+                .stream()
+                .map(Group::getId)
+                .collect(Collectors.toList());
     }
 
     public ResponseGroupDTO save(CreateGroupDTO request, String username) {

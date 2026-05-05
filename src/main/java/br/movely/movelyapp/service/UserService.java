@@ -22,6 +22,11 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
     }
 
+    public User getInternalUser(String username) {
+        return userRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+    }
+
     public UserDTO getUser(Long userId) {
         return UserDTO.get(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found")));
     }
