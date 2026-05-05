@@ -1,6 +1,10 @@
 # Compiled class file
 *.class
 venv
+.codex-backup/
+.m2/
+data/
+target/
 
 # Log file
 *.log

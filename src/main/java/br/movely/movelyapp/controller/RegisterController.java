@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/registers")
@@ -19,6 +20,18 @@ public class RegisterController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Register>> getAllByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(registerService.getAllByUser(userId));
+    }
+
+    @GetMapping("/group/{groupId}")
+    public ResponseEntity<List<Register>> getAllByGroup(@PathVariable UUID groupId) {
+        return ResponseEntity.ok(registerService.getAllByGroup(groupId));
+    }
+
+    @GetMapping("/group/{groupId}/user/{userId}")
+    public ResponseEntity<List<Register>> getAllByUserAndGroup(
+            @PathVariable UUID groupId,
+            @PathVariable Long userId) {
+        return ResponseEntity.ok(registerService.getAllByUserAndGroup(userId, groupId));
     }
 
     @PostMapping("/water")

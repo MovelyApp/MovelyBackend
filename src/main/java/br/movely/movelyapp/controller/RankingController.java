@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/ranking")
@@ -19,15 +20,15 @@ public class RankingController {
 
     @GetMapping("/{groupId}/{challengeId}")
     public Ranking getRanking(
-            @PathVariable Integer groupId,
-            @PathVariable Integer challengeId) {
+            @PathVariable UUID groupId,
+            @PathVariable UUID challengeId) {
 
-        List<Integer> users = List.of(1, 2, 3);
+        List<Long> users = List.of(1L, 2L, 3L);
 
-        Map<Integer, Double> scores = Map.of(
-                1, 100.0,
-                2, 200.0,
-                3, 150.0
+        Map<Long, Double> scores = Map.of(
+                1L, 100.0,
+                2L, 200.0,
+                3L, 150.0
         );
 
         return rankingService.generateRanking(groupId, challengeId, users, scores);

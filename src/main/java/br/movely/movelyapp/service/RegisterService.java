@@ -1,15 +1,14 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.*;
-import br.movely.movelyapp.exceptions.NotFoundException;
 import br.movely.movelyapp.model.*;
 import br.movely.movelyapp.repository.RegisterRepository;
-import br.movely.movelyapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class RegisterService {
@@ -18,35 +17,53 @@ public class RegisterService {
     private RegisterRepository registerRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
+
+    @Autowired
+    private GroupService groupService;
 
     public List<Register> getAllByUser(Long userId) {
         return registerRepository.findByUserId(userId);
     }
 
+    public List<Register> getAllByGroup(UUID groupId) {
+        return registerRepository.findByGroupId(groupId);
+    }
+
+    public List<Register> getAllByUserAndGroup(Long userId, UUID groupId) {
+        return registerRepository.findByUserIdAndGroupId(userId, groupId);
+    }
+
+    private void fillBaseFields(Register register, Long userId, UUID groupId, String notes) {
+        if (groupId == null) {
+            throw new RuntimeException("Group Id is required");
+        }
+
+        groupService.findGroup(groupId);
+
+        register.setUser(userService.getUser(userId));
+        register.setGroupId(groupId);
+        register.setDateTime(LocalDateTime.now());
+        register.setNotes(notes);
+    }
+
     public WaterRegister createWaterRegister(WaterRegisterRequest request) {
         WaterRegister register = new WaterRegister();
-        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
-        register.setDateTime(LocalDateTime.now());
-        register.setNotes(request.getNotes());
+        fillBaseFields(register, request.getUserId(), request.getGroupId(), request.getNotes());
         register.setMl(request.getMl());
         return registerRepository.save(register);
     }
 
     public StepsRegister createStepsRegister(StepsRegisterRequest request) {
         StepsRegister register = new StepsRegister();
-        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
-        register.setDateTime(LocalDateTime.now());
-        register.setNotes(request.getNotes());
+        fillBaseFields(register, request.getUserId(), request.getGroupId(), request.getNotes());
         register.setSteps(request.getSteps());
         return registerRepository.save(register);
     }
 
     public SleepRegister createSleepRegister(SleepRegisterRequest request) {
         SleepRegister register = new SleepRegister();
-        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
-        register.setDateTime(LocalDateTime.now());
-        register.setNotes(request.getNotes());
+        fillBaseFields(register, request.getUserId(), request.getGroupId(), request.getNotes());
         register.setHours(request.getHours());
         register.setQuality(request.getQuality());
         return registerRepository.save(register);
@@ -54,9 +71,7 @@ public class RegisterService {
 
     public WorkoutRegister createWorkoutRegister(WorkoutRegisterRequest request) {
         WorkoutRegister register = new WorkoutRegister();
-        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
-        register.setDateTime(LocalDateTime.now());
-        register.setNotes(request.getNotes());
+        fillBaseFields(register, request.getUserId(), request.getGroupId(), request.getNotes());
         register.setWorkoutType(request.getWorkoutType());
         register.setDurationMin(request.getDurationMin());
         register.setWeight(request.getWeight());
@@ -65,9 +80,7 @@ public class RegisterService {
 
     public StudyRegister createStudyRegister(StudyRegisterRequest request) {
         StudyRegister register = new StudyRegister();
-        register.setUser(userRepository.findById(request.getUserId()).orElseThrow(NotFoundException::new));
-        register.setDateTime(LocalDateTime.now());
-        register.setNotes(request.getNotes());
+        fillBaseFields(register, request.getUserId(), request.getGroupId(), request.getNotes());
         register.setHours(request.getHours());
         return registerRepository.save(register);
     }
