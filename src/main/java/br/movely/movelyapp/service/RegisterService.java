@@ -1,6 +1,7 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.*;
+import br.movely.movelyapp.exceptions.ForbiddenException;
 import br.movely.movelyapp.model.*;
 import br.movely.movelyapp.repository.RegisterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +27,46 @@ public class RegisterService {
         return registerRepository.findByUserId(userId);
     }
 
+    public List<Register> getAllByUser(String username) {
+        return registerRepository.findByUserId(userService.getInternalUser(username).getId());
+    }
+
     public List<Register> getAllByGroup(UUID groupId) {
         return registerRepository.findByGroupId(groupId);
+    }
+
+    public List<Register> getAllByGroup(UUID groupId, String username) {
+        validateGroupAccess(username, groupId);
+        return getAllByGroup(groupId);
     }
 
     public List<Register> getAllByUserAndGroup(Long userId, UUID groupId) {
         return registerRepository.findByUserIdAndGroupId(userId, groupId);
     }
 
+    public List<Register> getAllByUserAndGroup(Long userId, UUID groupId, String username) {
+        validateGroupAccess(username, groupId);
+        return getAllByUserAndGroup(userId, groupId);
+    }
+
+    private void validateGroupAccess(String username, UUID groupId) {
+        Long currentUserId = userService.getInternalUser(username).getId();
+        if (!groupService.canViewGroup(currentUserId, groupId)) {
+            throw new ForbiddenException("You cannot view this group");
+        }
+    }
+
     private void fillBaseFields(Register register, Long userId, UUID groupId, String notes) {
         if (groupId == null) {
             throw new RuntimeException("Group Id is required");
         }
+        if (userId == null) {
+            throw new RuntimeException("User Id is required");
+        }
 
-        groupService.findGroup(groupId);
+        if (!groupService.isUserInGroup(userId, groupId)) {
+            throw new RuntimeException("User is not in the group");
+        }
 
         register.setUser(userService.getInternalUser(userId));
         register.setGroupId(groupId);
@@ -83,5 +110,30 @@ public class RegisterService {
         fillBaseFields(register, request.getUserId(), request.getGroupId(), request.getNotes());
         register.setHours(request.getHours());
         return registerRepository.save(register);
+    }
+
+    public WaterRegister createWaterRegister(WaterRegisterRequest request, String username) {
+        request.setUserId(userService.getInternalUser(username).getId());
+        return createWaterRegister(request);
+    }
+
+    public StepsRegister createStepsRegister(StepsRegisterRequest request, String username) {
+        request.setUserId(userService.getInternalUser(username).getId());
+        return createStepsRegister(request);
+    }
+
+    public SleepRegister createSleepRegister(SleepRegisterRequest request, String username) {
+        request.setUserId(userService.getInternalUser(username).getId());
+        return createSleepRegister(request);
+    }
+
+    public WorkoutRegister createWorkoutRegister(WorkoutRegisterRequest request, String username) {
+        request.setUserId(userService.getInternalUser(username).getId());
+        return createWorkoutRegister(request);
+    }
+
+    public StudyRegister createStudyRegister(StudyRegisterRequest request, String username) {
+        request.setUserId(userService.getInternalUser(username).getId());
+        return createStudyRegister(request);
     }
 }

@@ -6,6 +6,8 @@ import br.movely.movelyapp.model.Challenge;
 import br.movely.movelyapp.service.ChallengeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -21,8 +23,8 @@ public class ChallengeController {
     }
 
     @GetMapping
-    public Page<Challenge> list(Pageable pageable) {
-        return service.list(pageable);
+    public Page<Challenge> list(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
+        return service.list(pageable, jwt.getSubject());
     }
     @PutMapping("/{id}")
     public ResponseChallengeDTO edit(@PathVariable UUID id,

@@ -14,11 +14,21 @@ import java.util.UUID;
 public class ChallengeService {
 
     private final ChallengeRepository repository;
-    public ChallengeService(ChallengeRepository repository) {
+    private final GroupService groupService;
+
+    public ChallengeService(ChallengeRepository repository, GroupService groupService) {
         this.repository = repository;
+        this.groupService = groupService;
     }
-    public Page<Challenge> list(Pageable pageable) {
-        return repository.findAll(pageable);
+
+    public Page<Challenge> list(Pageable pageable, String username) {
+        java.util.List<UUID> groupIds = groupService.listUserGroupIds(username);
+
+        if (groupIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        return repository.findByGroupIdIn(groupIds, pageable);
     }
 
     public Challenge find(UUID id) {

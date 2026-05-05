@@ -24,6 +24,10 @@ public class Group {
     private String urlImagem;
     private LocalDateTime dataLancamento = LocalDateTime.now();
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @ManyToMany
     @JoinTable(
             name = "group_user",
@@ -82,6 +86,14 @@ public class Group {
         this.dataLancamento = dataLancamento;
     }
 
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
     public void atualizarInfo(String name, String description, String urlImagem) {
         if (name != null) {
             this.name = name;
@@ -95,6 +107,14 @@ public class Group {
     }
 
     public void addUser(User user) {
+        if (user == null) {
+            return;
+        }
+        boolean alreadyInGroup = this.users.stream()
+                .anyMatch(member -> user.getId() != null && user.getId().equals(member.getId()));
+        if (alreadyInGroup) {
+            return;
+        }
         this.users.add(user);
     }
 

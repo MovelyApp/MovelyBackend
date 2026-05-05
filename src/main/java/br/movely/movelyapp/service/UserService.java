@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -21,12 +24,40 @@ public class UserService {
         return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
     }
 
+    public User getInternalUser(String username) {
+        return userRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+    }
+
     public UserDTO getUser(Long userId) {
         return UserDTO.get(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found")));
     }
 
+    public UserDTO getUserByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
+        }
+
+        String normalizedEmail = email.trim().toLowerCase();
+        Optional<User> user = userRepository.findByEmailIgnoreCase(normalizedEmail);
+
+        if (!user.isPresent()) {
+            user = userRepository.findByUsernameIgnoreCase(normalizedEmail);
+        }
+
+        return UserDTO.get(user.orElseThrow(() -> new NotFoundException("User Not Found")));
+    }
+
     public List<UserDTO> getUsers() {
-        return userRepository.findAll().stream().map(UserDTO::get).toList();
+        return userRepository.findAll().stream().map(UserDTO::get).collect(Collectors.toList());
+    }
+
+    public List<UserDTO> getUsers(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return getUsers();
+        }
+
+        return Collections.singletonList(getUserByEmail(email));
     }
 
     public UserDTO updateUser(UpdateUserRequest request, String username) {

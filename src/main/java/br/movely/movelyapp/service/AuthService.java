@@ -1,8 +1,8 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.LoginRequest;
-import br.movely.movelyapp.DTO.LoginResponse;
 import br.movely.movelyapp.DTO.RegisterRequest;
+import br.movely.movelyapp.DTO.UserDTO;
 import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,12 +30,20 @@ public class AuthService {
     JwtService jwtService;
 
     public void register(RegisterRequest request) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        String accountEmail = request.getEmail() != null && !request.getEmail().trim().isEmpty()
+                ? request.getEmail().trim().toLowerCase()
+                : request.getUsername().trim().toLowerCase();
+
+        if (userRepository.findByUsernameIgnoreCase(accountEmail).isPresent()) {
             throw new RuntimeException("User already exists");
+        }
+        if (userRepository.findByEmailIgnoreCase(accountEmail).isPresent()) {
+            throw new RuntimeException("Email already exists");
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setUsername(accountEmail);
+        user.setEmail(accountEmail);
         user.setPassword(encoder.encode(request.getPassword()));
 
         userRepository.save(user);
@@ -61,6 +68,10 @@ public class AuthService {
 
     }
 
-
+    public UserDTO me(String username) {
+        User user = userRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return UserDTO.get(user);
+    }
 
 }
