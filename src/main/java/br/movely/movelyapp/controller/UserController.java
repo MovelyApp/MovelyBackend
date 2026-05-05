@@ -27,9 +27,17 @@ public class UserController {
         return service.getUserByEmail(email);
     }
 
-    @GetMapping("/{id:[0-9]+}")
-    public UserDTO getUser(@PathVariable Long id) {
-        return service.getUser(id);
+    @GetMapping("/{id}")
+    public UserDTO getUser(@PathVariable String id, @RequestParam(required = false) String email) {
+        if ("by-email".equalsIgnoreCase(id)) {
+            return service.getUserByEmail(email);
+        }
+
+        try {
+            return service.getUser(Long.valueOf(id));
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("User id must be a number");
+        }
     }
 
     @PutMapping
