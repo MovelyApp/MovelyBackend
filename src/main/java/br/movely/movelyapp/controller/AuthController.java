@@ -2,13 +2,11 @@ package br.movely.movelyapp.controller;
 
 import br.movely.movelyapp.DTO.LoginRequest;
 import br.movely.movelyapp.DTO.RegisterRequest;
-import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

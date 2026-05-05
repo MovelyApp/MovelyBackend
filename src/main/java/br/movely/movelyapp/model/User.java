@@ -28,6 +28,10 @@ public class User {
 
     private String role = "User";
 
+    private float weight;
+
+    private float height;
+
     @CreatedDate
     @Column(updatable = false)
     LocalDateTime createdAt;
