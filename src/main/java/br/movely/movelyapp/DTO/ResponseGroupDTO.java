@@ -16,6 +16,8 @@ public class ResponseGroupDTO {
     private String name;
     private String description;
     private String urlImagem;
+    private Long ownerId;
+    private String ownerEmail;
     private List<UserDTO> users;
 
 
@@ -26,6 +28,12 @@ public class ResponseGroupDTO {
         dto.setDescription(group.getDescription());
         dto.setUrlImagem(group.getUrlImagem());
         dto.setName(group.getName());
+        if (group.getOwner() != null) {
+            dto.setOwnerId(group.getOwner().getId());
+            dto.setOwnerEmail(group.getOwner().getEmail() != null
+                    ? group.getOwner().getEmail()
+                    : group.getOwner().getUsername());
+        }
         dto.setUsers(group.getUsers().stream().map(UserDTO::get).collect(Collectors.toList()));
         return dto;
     }

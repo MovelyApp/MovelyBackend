@@ -24,6 +24,10 @@ public class Group {
     private String urlImagem;
     private LocalDateTime dataLancamento = LocalDateTime.now();
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
     @ManyToMany
     @JoinTable(
             name = "group_user",
@@ -80,6 +84,14 @@ public class Group {
 
     public void setDataLancamento(LocalDateTime dataLancamento) {
         this.dataLancamento = dataLancamento;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public void atualizarInfo(String name, String description, String urlImagem) {

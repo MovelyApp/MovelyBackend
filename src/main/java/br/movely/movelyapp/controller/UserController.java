@@ -27,6 +27,11 @@ public class UserController {
         return service.getUser(id);
     }
 
+    @GetMapping("/by-email")
+    public UserDTO getUserByEmail(@RequestParam String email) {
+        return service.getUserByEmail(email);
+    }
+
     @PutMapping
     public UserDTO updateUser(@AuthenticationPrincipal Jwt jwt, @RequestBody UpdateUserRequest request) {
         return service.updateUser(request, jwt.getSubject());

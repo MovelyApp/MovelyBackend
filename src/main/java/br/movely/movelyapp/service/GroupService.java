@@ -5,6 +5,7 @@ import br.movely.movelyapp.DTO.CreateGroupDTO;
 import br.movely.movelyapp.DTO.EditGroupDTO;
 import br.movely.movelyapp.DTO.ResponseGroupDTO;
 import br.movely.movelyapp.GroupNotFoundException;
+import br.movely.movelyapp.exceptions.ForbiddenException;
 import br.movely.movelyapp.exceptions.NotFoundException;
 import br.movely.movelyapp.model.Group;
 import br.movely.movelyapp.model.User;
@@ -67,12 +68,17 @@ public class GroupService {
         group.setName(request.getName());
         group.setDescription(request.getDescription());
         group.setUrlImagem(request.getUrlImagem());
+        group.setOwner(currentUser);
         group.addUser(currentUser);
         groupRepository.save(group);
         return ResponseGroupDTO.toDTO(group);
     }
 
     public ResponseGroupDTO addUser(AddUserGroupDTO request) {
+        if (request == null || request.getGroupId() == null) {
+            throw new IllegalArgumentException("Group id is required");
+        }
+
         User user = findUserForGroupAdd(request);
         Group group = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new NotFoundException("Group Not Found"));
         Long userId = user.getId();
@@ -85,9 +91,18 @@ public class GroupService {
         return ResponseGroupDTO.toDTO(groupRepository.save(group));
     }
 
-    public ResponseGroupDTO removeUser(Long userId, UUID groupId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
+    public ResponseGroupDTO removeUser(Long userId, UUID groupId, String username) {
+        if (groupId == null) {
+            throw new IllegalArgumentException("Group id is required");
+        }
+        if (userId == null) {
+            throw new IllegalArgumentException("User id is required");
+        }
+
+        User actor = findUserByUsername(username);
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group Not Found"));
+        validateCanManageGroup(actor, group);
 
         boolean userInGroup = group.getUsers().stream()
                 .anyMatch(member -> userId.equals(member.getId()));
@@ -99,8 +114,10 @@ public class GroupService {
         return ResponseGroupDTO.toDTO(groupRepository.save(group));
     }
 
-    public ResponseGroupDTO editOwnGroup(UUID id, EditGroupDTO editGroupDTO) {
+    public ResponseGroupDTO editOwnGroup(UUID id, EditGroupDTO editGroupDTO, String username) {
+        User actor = findUserByUsername(username);
         Group groupDB = findGroup(id);
+        validateCanManageGroup(actor, groupDB);
 
         groupDB.atualizarInfo(
                 editGroupDTO.getName(),
@@ -115,6 +132,21 @@ public class GroupService {
     private User findUserByUsername(String username) {
         return userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new NotFoundException("User Not Found"));
+    }
+
+    private void validateCanManageGroup(User actor, Group group) {
+        if (group.getOwner() != null) {
+            if (!actor.getId().equals(group.getOwner().getId())) {
+                throw new ForbiddenException("Only the group creator can manage members");
+            }
+            return;
+        }
+
+        boolean actorInGroup = group.getUsers().stream()
+                .anyMatch(member -> actor.getId().equals(member.getId()));
+        if (!actorInGroup) {
+            throw new ForbiddenException("Only group members can manage this group");
+        }
     }
 
     private User findUserForGroupAdd(AddUserGroupDTO request) {
