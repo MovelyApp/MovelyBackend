@@ -22,14 +22,14 @@ public class UserController {
         return service.getUsers();
     }
 
-    @GetMapping("/{id}")
-    public UserDTO getUser(@PathVariable Long id) {
-        return service.getUser(id);
-    }
-
     @GetMapping("/by-email")
     public UserDTO getUserByEmail(@RequestParam String email) {
         return service.getUserByEmail(email);
+    }
+
+    @GetMapping("/{id:[0-9]+}")
+    public UserDTO getUser(@PathVariable Long id) {
+        return service.getUser(id);
     }
 
     @PutMapping
