@@ -1,11 +1,18 @@
 package br.movely.movelyapp.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "groups")
+@Setter
+@Getter
 public class Group {
 
     @Id
@@ -15,7 +22,15 @@ public class Group {
     private String name;
     private String description;
     private String urlImagem;
-    private LocalDateTime dataLancamento;
+    private LocalDateTime dataLancamento = LocalDateTime.now();
+
+    @ManyToMany
+    @JoinTable(
+            name = "group_user",
+            joinColumns = @JoinColumn(name = "group_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> users = new ArrayList<>();
 
     public Group() {
     }
@@ -77,5 +92,13 @@ public class Group {
         if (urlImagem != null) {
             this.urlImagem = urlImagem;
         }
+    }
+
+    public void addUser(User user) {
+        this.users.add(user);
+    }
+
+    public void removeUser(User user) {
+        this.users.remove(user);
     }
 }
