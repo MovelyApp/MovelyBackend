@@ -1,5 +1,6 @@
 package br.movely.movelyapp.service;
 
+import br.movely.movelyapp.DTO.AddUserGroupDTO;
 import br.movely.movelyapp.DTO.CreateGroupDTO;
 import br.movely.movelyapp.DTO.EditGroupDTO;
 import br.movely.movelyapp.DTO.ResponseGroupDTO;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -30,8 +32,9 @@ public class GroupService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ResponseGroupDTO> listGroups(Pageable pageable) {
-        return groupRepository.findAll(pageable).map(ResponseGroupDTO::toDTO);
+    public Page<ResponseGroupDTO> listGroups(Pageable pageable, String username) {
+        User currentUser = findUserByUsername(username);
+        return groupRepository.findByUsers_Id(currentUser.getId(), pageable).map(ResponseGroupDTO::toDTO);
     }
 
     public Group findGroup(UUID id) {
@@ -39,20 +42,25 @@ public class GroupService {
                 .orElseThrow(GroupNotFoundException::new);
     }
 
-    public ResponseGroupDTO save(CreateGroupDTO request) {
+    public ResponseGroupDTO save(CreateGroupDTO request, String username) {
+        User currentUser = findUserByUsername(username);
         Group group = new Group();
 
         group.setName(request.getName());
         group.setDescription(request.getDescription());
         group.setUrlImagem(request.getUrlImagem());
+        group.addUser(currentUser);
         groupRepository.save(group);
         return ResponseGroupDTO.toDTO(group);
     }
 
-    public ResponseGroupDTO addUser(Long userId, UUID groupId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
-        Group group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group Not Found"));
-        if (group.getUsers().contains(user)) {
+    public ResponseGroupDTO addUser(AddUserGroupDTO request) {
+        User user = findUserForGroupAdd(request);
+        Group group = groupRepository.findById(request.getGroupId()).orElseThrow(() -> new NotFoundException("Group Not Found"));
+        Long userId = user.getId();
+        boolean userAlreadyInGroup = group.getUsers().stream()
+                .anyMatch(member -> userId.equals(member.getId()));
+        if (userAlreadyInGroup) {
             throw new RuntimeException("User already in the group");
         }
         group.addUser(user);
@@ -63,11 +71,13 @@ public class GroupService {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
         Group group = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException("Group Not Found"));
 
-        if (!group.getUsers().contains(user)) {
+        boolean userInGroup = group.getUsers().stream()
+                .anyMatch(member -> userId.equals(member.getId()));
+        if (!userInGroup) {
             throw new RuntimeException("User is not in the group");
         }
 
-        group.removeUser(user);
+        group.getUsers().removeIf(member -> userId.equals(member.getId()));
         return ResponseGroupDTO.toDTO(groupRepository.save(group));
     }
 
@@ -82,5 +92,32 @@ public class GroupService {
 
         groupDB = groupRepository.save(groupDB);
         return ResponseGroupDTO.toDTO(groupDB);
+    }
+
+    private User findUserByUsername(String username) {
+        return userRepository.findByUsernameIgnoreCase(username)
+                .orElseThrow(() -> new NotFoundException("User Not Found"));
+    }
+
+    private User findUserForGroupAdd(AddUserGroupDTO request) {
+        String email = request.getEmail();
+
+        if (email != null && !email.trim().isEmpty()) {
+            String normalizedEmail = email.trim().toLowerCase();
+            Optional<User> user = userRepository.findByEmailIgnoreCase(normalizedEmail);
+
+            if (!user.isPresent()) {
+                user = userRepository.findByUsernameIgnoreCase(normalizedEmail);
+            }
+
+            return user.orElseThrow(() -> new NotFoundException("User Not Found"));
+        }
+
+        if (request.getUserId() != null) {
+            return userRepository.findById(request.getUserId())
+                    .orElseThrow(() -> new NotFoundException("User Not Found"));
+        }
+
+        throw new IllegalArgumentException("Email is required");
     }
 }

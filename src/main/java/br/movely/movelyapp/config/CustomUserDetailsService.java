@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -15,8 +17,13 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = repo.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User Not Found"));
+        Optional<User> foundUser = repo.findByUsernameIgnoreCase(username);
+
+        if (!foundUser.isPresent()) {
+            foundUser = repo.findByEmailIgnoreCase(username);
+        }
+
+        User user = foundUser.orElseThrow(() -> new RuntimeException("User Not Found"));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())

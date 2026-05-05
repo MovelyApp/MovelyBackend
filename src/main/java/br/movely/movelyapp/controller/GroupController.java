@@ -4,6 +4,8 @@ import br.movely.movelyapp.DTO.*;
 import br.movely.movelyapp.service.GroupService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -18,8 +20,8 @@ public class GroupController {
         this.groupService = groupService;
     }
     @GetMapping
-    public Page<ResponseGroupDTO> getGroups(Pageable pageable) {
-        return groupService.listGroups(pageable);
+    public Page<ResponseGroupDTO> getGroups(@AuthenticationPrincipal Jwt jwt, Pageable pageable) {
+        return groupService.listGroups(pageable, jwt.getSubject());
     }
 
     @PutMapping("/{id}")
@@ -29,14 +31,14 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseGroupDTO createGroup(@RequestBody CreateGroupDTO request) {
-        return groupService.save(request);
+    public ResponseGroupDTO createGroup(@AuthenticationPrincipal Jwt jwt, @RequestBody CreateGroupDTO request) {
+        return groupService.save(request, jwt.getSubject());
     }
 
 
     @PostMapping("/add")
     public ResponseGroupDTO addUser(@RequestBody AddUserGroupDTO request) {
-        return groupService.addUser(request.getUserId(), request.getGroupId());
+        return groupService.addUser(request);
     }
 
     @PostMapping("/remove")

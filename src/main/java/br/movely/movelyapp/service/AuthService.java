@@ -30,12 +30,20 @@ public class AuthService {
     JwtService jwtService;
 
     public void register(RegisterRequest request) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        String accountEmail = request.getEmail() != null && !request.getEmail().trim().isEmpty()
+                ? request.getEmail().trim().toLowerCase()
+                : request.getUsername().trim().toLowerCase();
+
+        if (userRepository.findByUsernameIgnoreCase(accountEmail).isPresent()) {
             throw new RuntimeException("User already exists");
+        }
+        if (userRepository.findByEmailIgnoreCase(accountEmail).isPresent()) {
+            throw new RuntimeException("Email already exists");
         }
 
         User user = new User();
-        user.setUsername(request.getUsername());
+        user.setUsername(accountEmail);
+        user.setEmail(accountEmail);
         user.setPassword(encoder.encode(request.getPassword()));
 
         userRepository.save(user);
@@ -61,7 +69,7 @@ public class AuthService {
     }
 
     public UserDTO me(String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return UserDTO.get(user);
     }

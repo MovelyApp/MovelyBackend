@@ -26,7 +26,7 @@ public class UserDTO {
         UserDTO userDto = new UserDTO();
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
-        userDto.setEmail(user.getEmail());
+        userDto.setEmail(user.getEmail() != null ? user.getEmail() : user.getUsername());
         userDto.setRole(user.getRole());
         userDto.setWeight(user.getWeight());
         userDto.setHeight(user.getHeight());
