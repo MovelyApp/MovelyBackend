@@ -1,8 +1,8 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.LoginRequest;
-import br.movely.movelyapp.DTO.LoginResponse;
 import br.movely.movelyapp.DTO.RegisterRequest;
+import br.movely.movelyapp.DTO.UserDTO;
 import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.repository.UserRepository;
 import com.nimbusds.jose.JOSEException;
@@ -11,7 +11,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -61,6 +60,10 @@ public class AuthService {
 
     }
 
-
+    public UserDTO me(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return UserDTO.get(user);
+    }
 
 }

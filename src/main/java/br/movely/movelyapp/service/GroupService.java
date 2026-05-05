@@ -9,15 +9,15 @@ import br.movely.movelyapp.model.Group;
 import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.repository.GroupRepository;
 import br.movely.movelyapp.repository.UserRepository;
-import org.aspectj.weaver.ast.Not;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
+@Transactional
 public class GroupService {
 
     private final GroupRepository groupRepository;
@@ -29,8 +29,9 @@ public class GroupService {
         this.groupRepository = groupRepository;
     }
 
-    public Page<Group> listGroups(Pageable pageable) {
-        return groupRepository.findAll(pageable);
+    @Transactional(readOnly = true)
+    public Page<ResponseGroupDTO> listGroups(Pageable pageable) {
+        return groupRepository.findAll(pageable).map(ResponseGroupDTO::toDTO);
     }
 
     public Group findGroup(UUID id) {
@@ -43,6 +44,7 @@ public class GroupService {
 
         group.setName(request.getName());
         group.setDescription(request.getDescription());
+        group.setUrlImagem(request.getUrlImagem());
         groupRepository.save(group);
         return ResponseGroupDTO.toDTO(group);
     }
@@ -54,7 +56,7 @@ public class GroupService {
             throw new RuntimeException("User already in the group");
         }
         group.addUser(user);
-        return ResponseGroupDTO.toDTO(group);
+        return ResponseGroupDTO.toDTO(groupRepository.save(group));
     }
 
     public ResponseGroupDTO removeUser(Long userId, UUID groupId) {
@@ -66,7 +68,7 @@ public class GroupService {
         }
 
         group.removeUser(user);
-        return ResponseGroupDTO.toDTO(group);
+        return ResponseGroupDTO.toDTO(groupRepository.save(group));
     }
 
     public ResponseGroupDTO editOwnGroup(UUID id, EditGroupDTO editGroupDTO) {

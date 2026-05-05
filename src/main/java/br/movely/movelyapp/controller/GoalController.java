@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import br.movely.movelyapp.DTO.CreateSleepGoalDTO;
 import br.movely.movelyapp.DTO.CreateStepsGoalDTO;
@@ -36,7 +37,7 @@ public class GoalController {
     public ResponseEntity<List<GoalResponseDTO>> listAll() {
         List<GoalResponseDTO> goals = goalService.listAll().stream()
                 .map(GoalResponseDTO::fromEntity)
-                .toList();
+                .collect(Collectors.toList());
         return ResponseEntity.ok(goals);
     }
 
@@ -49,7 +50,7 @@ public class GoalController {
     public ResponseEntity<List<GoalResponseDTO>> listByChallenge(@PathVariable UUID challengeId) {
         List<GoalResponseDTO> goals = goalService.listByChallenge(challengeId).stream()
                 .map(GoalResponseDTO::fromEntity)
-                .toList();
+                .collect(Collectors.toList());
         return ResponseEntity.ok(goals);
     }
 

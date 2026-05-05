@@ -16,6 +16,7 @@ public class UserDTO {
 
     private Long id;
     private String username;
+    private String email;
     private String role;
     private float weight;
     private float height;
@@ -25,6 +26,7 @@ public class UserDTO {
         UserDTO userDto = new UserDTO();
         userDto.setId(user.getId());
         userDto.setUsername(user.getUsername());
+        userDto.setEmail(user.getEmail());
         userDto.setRole(user.getRole());
         userDto.setWeight(user.getWeight());
         userDto.setHeight(user.getHeight());

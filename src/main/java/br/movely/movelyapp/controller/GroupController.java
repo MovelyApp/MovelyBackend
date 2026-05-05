@@ -1,7 +1,6 @@
 package br.movely.movelyapp.controller;
 
 import br.movely.movelyapp.DTO.*;
-import br.movely.movelyapp.model.Group;
 import br.movely.movelyapp.service.GroupService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +18,7 @@ public class GroupController {
         this.groupService = groupService;
     }
     @GetMapping
-    public Page<Group> getGroups(Pageable pageable) {
+    public Page<ResponseGroupDTO> getGroups(Pageable pageable) {
         return groupService.listGroups(pageable);
     }
 
