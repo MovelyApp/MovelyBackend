@@ -47,8 +47,15 @@ public class GroupService {
 
     @Transactional(readOnly = true)
     public boolean isUserInGroup(Long userId, UUID groupId) {
+        return canViewGroup(userId, groupId);
+    }
+
+    @Transactional(readOnly = true)
+    public boolean canViewGroup(Long userId, UUID groupId) {
         Group group = findGroup(groupId);
-        return group.getUsers().stream().anyMatch(member -> userId.equals(member.getId()));
+        boolean isOwner = group.getOwner() != null && userId.equals(group.getOwner().getId());
+        boolean isMember = group.getUsers().stream().anyMatch(member -> userId.equals(member.getId()));
+        return isOwner || isMember;
     }
 
     @Transactional(readOnly = true)

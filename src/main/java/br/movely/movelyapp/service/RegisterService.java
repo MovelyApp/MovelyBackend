@@ -1,6 +1,7 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.*;
+import br.movely.movelyapp.exceptions.ForbiddenException;
 import br.movely.movelyapp.model.*;
 import br.movely.movelyapp.repository.RegisterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,25 @@ public class RegisterService {
         return registerRepository.findByGroupId(groupId);
     }
 
+    public List<Register> getAllByGroup(UUID groupId, String username) {
+        validateGroupAccess(username, groupId);
+        return getAllByGroup(groupId);
+    }
+
     public List<Register> getAllByUserAndGroup(Long userId, UUID groupId) {
         return registerRepository.findByUserIdAndGroupId(userId, groupId);
+    }
+
+    public List<Register> getAllByUserAndGroup(Long userId, UUID groupId, String username) {
+        validateGroupAccess(username, groupId);
+        return getAllByUserAndGroup(userId, groupId);
+    }
+
+    private void validateGroupAccess(String username, UUID groupId) {
+        Long currentUserId = userService.getInternalUser(username).getId();
+        if (!groupService.canViewGroup(currentUserId, groupId)) {
+            throw new ForbiddenException("You cannot view this group");
+        }
     }
 
     private void fillBaseFields(Register register, Long userId, UUID groupId, String notes) {

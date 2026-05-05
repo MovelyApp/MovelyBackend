@@ -25,15 +25,16 @@ public class RegisterController {
     }
 
     @GetMapping("/group/{groupId}")
-    public ResponseEntity<List<Register>> getAllByGroup(@PathVariable UUID groupId) {
-        return ResponseEntity.ok(registerService.getAllByGroup(groupId));
+    public ResponseEntity<List<Register>> getAllByGroup(@AuthenticationPrincipal Jwt jwt, @PathVariable UUID groupId) {
+        return ResponseEntity.ok(registerService.getAllByGroup(groupId, jwt.getSubject()));
     }
 
     @GetMapping("/group/{groupId}/user/{userId}")
     public ResponseEntity<List<Register>> getAllByUserAndGroup(
+            @AuthenticationPrincipal Jwt jwt,
             @PathVariable UUID groupId,
             @PathVariable Long userId) {
-        return ResponseEntity.ok(registerService.getAllByUserAndGroup(userId, groupId));
+        return ResponseEntity.ok(registerService.getAllByUserAndGroup(userId, groupId, jwt.getSubject()));
     }
 
     @PostMapping("/water")
