@@ -3,6 +3,7 @@ package br.movely.movelyapp.service;
 import br.movely.movelyapp.DTO.UpdateUserRequest;
 import br.movely.movelyapp.DTO.UserDTO;
 import br.movely.movelyapp.exceptions.ForbiddenException;
+import br.movely.movelyapp.exceptions.NotFoundException;
 import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class UserService {
 
     public UserDTO updateUser(UpdateUserRequest request, String username) {
         if (request == null || request.getUserId() == null) {
-            throw new RuntimeException("User Id is required");
+            throw new IllegalArgumentException("User Id is required");
         }
         Long userId = request.getUserId();
         User actualUser = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not Found"));
@@ -35,7 +36,7 @@ public class UserService {
         }
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
         if (request.getEmail() == null && request.getHeight() < 0 && request.getWeight() < 0) {
-            throw new RuntimeException("Please fill up at least one field");
+            throw new IllegalArgumentException("Please fill up at least one field");
         }
         if (request.getEmail() != null) {
             user.setEmail(request.getEmail());
@@ -54,6 +55,9 @@ public class UserService {
         User actualUser = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User Not Found"));
         if (!userId.equals(actualUser.getId()) && !actualUser.getRole().equals("Admin")) {
             throw new ForbiddenException();
+        }
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User Not Found");
         }
         userRepository.deleteById(userId);
     }

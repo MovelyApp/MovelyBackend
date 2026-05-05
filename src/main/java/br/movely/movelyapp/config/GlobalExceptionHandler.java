@@ -4,12 +4,18 @@ import br.movely.movelyapp.exceptions.ForbiddenException;
 import br.movely.movelyapp.exceptions.NotFoundException;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity
+                .status(HttpStatusCode.valueOf(400))
+                .body(ex.getMessage());
+    }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
@@ -21,7 +27,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
         String message = ex.getMessage();
-        if (message.isEmpty()) {
+        if (message == null || message.isEmpty()) {
             message = "Resource Not Found";
         }
         return ResponseEntity
