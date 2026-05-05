@@ -43,7 +43,7 @@ public class AuthService {
     }
 
 
-    public LoginResponse login(LoginRequest request) {
+    public String login(LoginRequest request) {
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -54,7 +54,7 @@ public class AuthService {
         UserDetails user = (UserDetails) auth.getPrincipal();
 
         try {
-            return new LoginResponse(jwtService.generateToken(user.getUsername()));
+            return jwtService.generateToken(user.getUsername());
         } catch (JOSEException e) {
             throw new RuntimeException("Token generation failed");
         }
