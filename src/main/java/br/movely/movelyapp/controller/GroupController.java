@@ -41,10 +41,24 @@ public class GroupController {
 
 
     @PostMapping("/add")
-    public GroupInviteDTO addUser(@AuthenticationPrincipal Jwt jwt, @RequestBody AddUserGroupDTO request) {
+    public GroupInviteDTO addUser(@AuthenticationPrincipal Jwt jwt,
+                                  @RequestBody(required = false) AddUserGroupDTO request,
+                                  @RequestParam(required = false) UUID groupId,
+                                  @RequestParam(required = false) String email) {
+        UUID resolvedGroupId = request != null && request.getGroupId() != null
+                ? request.getGroupId()
+                : groupId;
+        String resolvedEmail = request != null && request.getEmail() != null
+                ? request.getEmail()
+                : email;
+
+        if (resolvedGroupId == null) {
+            throw new IllegalArgumentException("Group id is required");
+        }
+
         CreateGroupInviteDTO inviteRequest = new CreateGroupInviteDTO();
-        inviteRequest.setGroupId(request != null ? request.getGroupId() : null);
-        inviteRequest.setEmail(request != null ? request.getEmail() : null);
+        inviteRequest.setGroupId(resolvedGroupId);
+        inviteRequest.setEmail(resolvedEmail);
         return groupInviteService.invite(inviteRequest, jwt.getSubject());
     }
 
