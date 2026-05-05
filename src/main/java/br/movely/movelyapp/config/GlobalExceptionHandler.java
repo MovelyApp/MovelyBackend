@@ -1,5 +1,6 @@
 package br.movely.movelyapp.config;
 
+import br.movely.movelyapp.exceptions.ExceptionResponse;
 import br.movely.movelyapp.exceptions.ForbiddenException;
 import br.movely.movelyapp.exceptions.NotFoundException;
 import org.springframework.http.HttpStatusCode;
@@ -14,35 +15,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(400))
-                .body(ex.getMessage());
+                .body(new ExceptionResponse(ex.getMessage(), 400));
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
         return ResponseEntity
-                .status(HttpStatusCode.valueOf(404))
-                .body(ex.getMessage());
+                .status(HttpStatusCode.valueOf(400))
+                .body(new ExceptionResponse(ex.getMessage(), 400));
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<?> handleNotFoundException(NotFoundException ex) {
-        String message = ex.getMessage();
-        if (message == null || message.isEmpty()) {
-            message = "Resource Not Found";
-        }
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(404))
-                .body(message);
+                .body(new ExceptionResponse(ex.getMessage(), 404));
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<?> handleForbiddenException(ForbiddenException ex) {
-        String message = ex.getMessage();
-        if (message == null || message.isEmpty()) {
-            message = "Forbidden";
-        }
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(403))
-                .body(message);
+                .body(new ExceptionResponse(ex.getMessage(), 403));
     }
 }

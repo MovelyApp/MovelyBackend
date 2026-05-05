@@ -1,6 +1,8 @@
 package br.movely.movelyapp.controller;
 
 import br.movely.movelyapp.DTO.LoginRequest;
+import br.movely.movelyapp.DTO.LoginResponse;
+import br.movely.movelyapp.DTO.MeResponse;
 import br.movely.movelyapp.DTO.RegisterRequest;
 import br.movely.movelyapp.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +18,14 @@ public class AuthController {
     AuthService service;
 
     @GetMapping("/me")
-    public String me(@AuthenticationPrincipal Jwt jwt) {
-        return jwt.getSubject();
+    public MeResponse me(@AuthenticationPrincipal Jwt jwt) {
+        return (new MeResponse(jwt.getSubject()));
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        String token = service.login(request);
-        return ResponseEntity.ok(token);
+        LoginResponse response = service.login(request);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/auth/register")

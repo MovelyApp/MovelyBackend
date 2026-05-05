@@ -17,6 +17,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    public User getInternalUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
+    }
+
     public UserDTO getUser(Long userId) {
         return UserDTO.get(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found")));
     }
