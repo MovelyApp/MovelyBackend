@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<?> handleForbiddenException(ForbiddenException ex) {
         String message = ex.getMessage();
-        if (message.isEmpty()) {
+        if (message == null || message.isEmpty()) {
             message = "Forbidden";
         }
         return ResponseEntity
