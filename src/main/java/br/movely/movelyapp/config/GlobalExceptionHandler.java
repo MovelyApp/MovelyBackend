@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
             message = "Resource Not Found";
         }
         return ResponseEntity
-                .status(HttpStatusCode.valueOf(400))
+                .status(HttpStatusCode.valueOf(404))
                 .body(message);
     }
 
