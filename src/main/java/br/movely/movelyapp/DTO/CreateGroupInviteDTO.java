@@ -9,5 +9,6 @@ import java.util.UUID;
 @Setter
 public class CreateGroupInviteDTO {
     private UUID groupId;
+    private Long userId;
     private String email;
 }

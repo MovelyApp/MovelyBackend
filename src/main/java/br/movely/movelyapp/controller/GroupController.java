@@ -44,10 +44,14 @@ public class GroupController {
     public GroupInviteDTO addUser(@AuthenticationPrincipal Jwt jwt,
                                   @RequestBody(required = false) AddUserGroupDTO request,
                                   @RequestParam(required = false) UUID groupId,
+                                  @RequestParam(required = false) Long userId,
                                   @RequestParam(required = false) String email) {
         UUID resolvedGroupId = request != null && request.getGroupId() != null
                 ? request.getGroupId()
                 : groupId;
+        Long resolvedUserId = request != null && request.getUserId() != null
+                ? request.getUserId()
+                : userId;
         String resolvedEmail = request != null && request.getEmail() != null
                 ? request.getEmail()
                 : email;
@@ -58,6 +62,7 @@ public class GroupController {
 
         CreateGroupInviteDTO inviteRequest = new CreateGroupInviteDTO();
         inviteRequest.setGroupId(resolvedGroupId);
+        inviteRequest.setUserId(resolvedUserId);
         inviteRequest.setEmail(resolvedEmail);
         return groupInviteService.invite(inviteRequest, jwt.getSubject());
     }

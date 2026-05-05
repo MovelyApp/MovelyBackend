@@ -39,8 +39,8 @@ public class GroupInviteService {
         }
 
         String email = normalizeEmail(request.getEmail());
-        if (email.isEmpty()) {
-            throw new IllegalArgumentException("Email is required");
+        if (email.isEmpty() && request.getUserId() == null) {
+            throw new IllegalArgumentException("Email or user id is required");
         }
 
         User inviter = findUserByIdentity(inviterUsername);
@@ -51,7 +51,7 @@ public class GroupInviteService {
             throw new ForbiddenException("Only the group creator can invite members");
         }
 
-        User invitedUser = findUserByIdentity(email);
+        User invitedUser = findUserForInvite(request.getUserId(), email);
         Long invitedUserId = invitedUser.getId();
 
         boolean alreadyInGroup = group.getUsers().stream()
@@ -145,6 +145,15 @@ public class GroupInviteService {
         }
 
         return user.orElseThrow(() -> new NotFoundException("User Not Found"));
+    }
+
+    private User findUserForInvite(Long userId, String email) {
+        if (userId != null) {
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> new NotFoundException("User Not Found"));
+        }
+
+        return findUserByIdentity(email);
     }
 
     private String normalizeEmail(String email) {
