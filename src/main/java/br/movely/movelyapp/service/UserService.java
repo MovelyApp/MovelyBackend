@@ -25,11 +25,15 @@ public class UserService {
     }
 
     public UserDTO updateUser(UpdateUserRequest request, String username) {
+        if (request == null || request.getUserId() == null) {
+            throw new RuntimeException("User Id is required");
+        }
+        Long userId = request.getUserId();
         User actualUser = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not Found"));
-        if (!request.getUserId().equals(actualUser.getId()) && !actualUser.getRole().equals("Admin")) {
+        if (!userId.equals(actualUser.getId()) && !actualUser.getRole().equals("Admin")) {
             throw new ForbiddenException();
         }
-        User user = userRepository.findById(request.getUserId()).orElseThrow(() -> new RuntimeException("User Not Found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
         if (request.getEmail() == null && request.getHeight() < 0 && request.getWeight() < 0) {
             throw new RuntimeException("Please fill up at least one field");
         }
