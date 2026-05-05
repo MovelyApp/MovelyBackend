@@ -1,9 +1,15 @@
 package br.movely.movelyapp.service;
 
+import br.movely.movelyapp.DTO.UpdateUserRequest;
+import br.movely.movelyapp.DTO.UserDTO;
+import br.movely.movelyapp.exceptions.ForbiddenException;
+import br.movely.movelyapp.exceptions.NotFoundException;
 import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class UserService {
@@ -11,12 +17,53 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User getUser(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not Found"));
+    public User getInternalUser(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User Not Found"));
     }
 
-    public User registerUser(User user) {
-        return userRepository.save(user);
+    public UserDTO getUser(Long userId) {
+        return UserDTO.get(userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found")));
+    }
+
+    public List<UserDTO> getUsers() {
+        return userRepository.findAll().stream().map(UserDTO::get).toList();
+    }
+
+    public UserDTO updateUser(UpdateUserRequest request, String username) {
+        if (request == null || request.getUserId() == null) {
+            throw new IllegalArgumentException("User Id is required");
+        }
+        Long userId = request.getUserId();
+        User actualUser = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not Found"));
+        if (!userId.equals(actualUser.getId()) && !actualUser.getRole().equals("Admin")) {
+            throw new ForbiddenException();
+        }
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
+        if (request.getEmail() == null && request.getHeight() < 0 && request.getWeight() < 0) {
+            throw new IllegalArgumentException("Please fill up at least one field");
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+        if (request.getWeight() >= 0) {
+            user.setWeight(request.getWeight());
+        }
+        if (request.getHeight() >= 0) {
+            user.setHeight(request.getHeight());
+        }
+        userRepository.save(user);
+        return UserDTO.get(user);
+    }
+
+    public void deleteUser(Long userId, String username) {
+        User actualUser = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User Not Found"));
+        if (!userId.equals(actualUser.getId()) && !actualUser.getRole().equals("Admin")) {
+            throw new ForbiddenException();
+        }
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User Not Found");
+        }
+        userRepository.deleteById(userId);
     }
 
 }

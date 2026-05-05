@@ -1,6 +1,7 @@
 package br.movely.movelyapp.service;
 
 import br.movely.movelyapp.DTO.LoginRequest;
+import br.movely.movelyapp.DTO.LoginResponse;
 import br.movely.movelyapp.DTO.RegisterRequest;
 import br.movely.movelyapp.model.User;
 import br.movely.movelyapp.repository.UserRepository;
@@ -42,7 +43,7 @@ public class AuthService {
     }
 
 
-    public String login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(),
@@ -53,7 +54,7 @@ public class AuthService {
         UserDetails user = (UserDetails) auth.getPrincipal();
 
         try {
-            return jwtService.generateToken(user.getUsername());
+            return new LoginResponse(jwtService.generateToken(user.getUsername()));
         } catch (JOSEException e) {
             throw new RuntimeException("Token generation failed");
         }

@@ -41,7 +41,7 @@ public class RegisterService {
 
         groupService.findGroup(groupId);
 
-        register.setUser(userService.getUser(userId));
+        register.setUser(userService.getInternalUser(userId));
         register.setGroupId(groupId);
         register.setDateTime(LocalDateTime.now());
         register.setNotes(notes);
